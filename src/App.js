@@ -27,8 +27,8 @@ function App() {
   }
 
   const returnHome = ()=>
-        {setNave(true);
-        }
+        setNave(true);
+        
 
 
   return (

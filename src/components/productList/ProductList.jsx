@@ -13,11 +13,16 @@ const ContenedorProductList = styled.div`
   }
 `;
 
+const Lista = styled.ul`
+  list-style-type: none;
+`;
+
 const TituloSidebar = styled.h1`
   color: black;
   text-align: center;
-  font-size: small;
+  font-size: medium;
   padding-top: 10px;
+  padding-bottom: 10px;
   @media (min-width: 768px) {
     font-size: larger;
   }
@@ -33,75 +38,107 @@ const CategorySidebar = styled.div`
   margin: 3px;
   justify-content: center;
   align-items: center;
+  font-size: 14px;
+  @media (min-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
-const ParrafoSidebar = styled.p`
-  text-align: center;
-  font-size: 8px;
-  border-bottom: 2px solid black;
-  padding: 5px;
 
-  @media (min-width: 768px) {
-    font-size: 15px;
-    font-weight: 500;
-  }
+const Loader = styled.div`
+    border: 16px solid #f3f3f3;
+    margin-left: auto;
+    margin-right: auto;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
 
-  @media (min-width: 1024px) {
-    font-size: 20px;
-    font-weight: 500;
-  }
+
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 `;
 
 const ProductList = () => {
-
   const [category, setCategory] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState([]);
-  
-  const handleChange = e => {
+  const [cargando, setCargando ] = useState(true)
+
+  const handleChange = (e) => {
     if (e.target.checked) {
-      setCategory([...category, e.target.value]);
+      setCategory([...category, e.target.value.toLowerCase()]);
     } else {
-      setCategory(category.filter(cate => cate !== e.target.value));
+      setCategory(
+        category.filter((cate) => cate !== e.target.value.toLowerCase())
+      );
     }
   };
-  
+  useEffect(() =>{
+    setTimeout(() => {
+      setCargando(false)
+      
+    }, 2000);
+    setCargando(true)
+  }, [])
+
+
   useEffect(() => {
     if (category.length === 0) {
       setFilteredCategory(dataProducts.results);
     } else {
       setFilteredCategory(
-        dataProducts.results.filter(dataCategories =>
-          category.some(value => [dataCategories].flat().includes(value))
+        dataProducts.results.filter((product) =>
+          category.some((value) => [product.data.category.slug].includes(value))
         )
       );
     }
   }, [category]);
 
-  
+
+  const Spinner = () => {
+    return (
+ <Loader></Loader>
+    )
+  }
+
   return (
     <>
-      <ContenedorProductList>
+{cargando ? (<Spinner/>) : 
+
+(<ContenedorProductList>
+ 
         <SidebarContenedor>
           <TituloSidebar>Categories</TituloSidebar>
-          <ul>
-          {dataCategories.results.map((result) => (
-            <li key={result.id}>
-              <div>
-                <input
-                type='checkbox'
-                id={result.id}
-                name={result.data.name}
-                value={result.data.name}
-                onChange={handleChange}
-                />
-                <label htmlFor={result.id}>{result.data.name}</label>
-              </div>
-
-            </li>
-
-          ))}
-          </ul>
-          </SidebarContenedor>
+          <Lista>
+            {dataCategories.results.map((result) => (
+              <li key={result.id}>
+                <CategorySidebar>
+                  <input
+                    onClick={() => setIsShown((current) => !current)}
+                    style={{ margin: "2px" }}
+                    type="checkbox"
+                    id={result.id}
+                    name={result.data.name}
+                    value={result.data.name}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor={result.id}>{result.data.name}</label>
+                </CategorySidebar>
+              </li>
+            ))}
+          </Lista>
+        </SidebarContenedor>
         <ProductContenedor>
           {filteredCategory.map((result) => (
             <Producto key={result.id}>
@@ -112,10 +149,35 @@ const ProductList = () => {
             </Producto>
           ))}
         </ProductContenedor>
-      </ContenedorProductList>
+  
+        <ContenedorButton>
+            <button>Back</button>
+            <button>Next</button>
+          </ContenedorButton>
+  
+  </ContenedorProductList>)
+      }
     </>
   );
 };
+
+const ContenedorButton = styled.div`
+  display: grid;
+  grid-column: 2/3;
+  padding: 10px;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  justify-content: center;
+  background-color: #e7e7e7;
+  color: black;
+  font-size: 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  :hover {
+    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+
+`;
 
 const ProductContenedor = styled.div`
   display: grid;

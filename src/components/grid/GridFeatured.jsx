@@ -118,7 +118,7 @@ const GridFeatured = () => {
           </Card>
         ))}
       </ContenedorGrid>
-      <ButtonHere onClick={showMoreItems}>Cargar Más</ButtonHere>
+      <ButtonHere onClick={showMoreItems}>More</ButtonHere>
     </>
   );
 };
