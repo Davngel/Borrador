@@ -1,6 +1,8 @@
 import React from "react";
-import dataCarousel from "../../mocks/en-us/product-categories.json";
+import { useSearchParams, Link } from "react-router-dom";
 import styled from "styled-components";
+import {useFeaturedCategories} from '../../utils/hooks/useFeaturedCategories'
+
 
 const ContenedorCarousel = styled.div`
   width: 100%;
@@ -59,16 +61,25 @@ const Parrafo = styled.p`
   }
 `;
 const Carousel = () => {
+
+  const {data, isLoading} = useFeaturedCategories()
+
+
+
   return (
     <>
-      <ContenedorCarousel>
-        {dataCarousel.results.map((result) => (
+{ isLoading ? (<div></div>)
+:
+
+(      <ContenedorCarousel>
+        {data.results.map((result) => (
           <Category key={result.id}>
-            <ImagenCont src={result.data.main_image.url} alt="" />
-            <Parrafo>{result.data.name}</Parrafo>
+            
+            <ImagenCont src={result.data.main_image.url} alt={result.data.name}/>
+            <Link to={`/products?category=${result.slugs[0]}`}>{result.data.name}</Link>
           </Category>
         ))}
-      </ContenedorCarousel>
+      </ContenedorCarousel>)}
     </>
   );
 };

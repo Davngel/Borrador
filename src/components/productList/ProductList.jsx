@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import dataCategories from "../../mocks/en-us/product-categories.json";
 import dataProducts from "../../mocks/en-us/products.json";
+import { useFeaturedCategories } from "../../utils/hooks/useFeaturedCategories";
 
 const ContenedorProductList = styled.div`
   display: grid;
@@ -73,7 +75,25 @@ const Loader = styled.div`
 const ProductList = () => {
   const [category, setCategory] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState([]);
-  const [cargando, setCargando ] = useState(true)
+  const [cargando, setCargando ] = useState(true);
+
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  const categorias = searchParams.get("category");
+  let categoriaActiva = categorias
+  const {data, isLoading} = useFeaturedCategories()
+
+
+  useEffect(() => {
+    if (categoriaActiva === null) {
+      categoriaActiva = ''
+    } else if (categoriaActiva.length > 0 ){
+      setCategory([...category, categoriaActiva.toLowerCase()]);
+      
+    }
+  }, [categoriaActiva]);
+
+
 
   const handleChange = (e) => {
     if (e.target.checked) {
@@ -90,6 +110,7 @@ const ProductList = () => {
       
     }, 2000);
     setCargando(true)
+
   }, [])
 
 
@@ -106,6 +127,11 @@ const ProductList = () => {
   }, [category]);
 
 
+  const handleTheChange = (e) => {
+    const { name, checked } = e.target;
+    console.log(checked)
+    console.log(name)}
+
   const Spinner = () => {
     return (
  <Loader></Loader>
@@ -121,17 +147,19 @@ const ProductList = () => {
         <SidebarContenedor>
           <TituloSidebar>Categories</TituloSidebar>
           <Lista>
-            {dataCategories.results.map((result) => (
+            {data.results.map((result) => (
               <li key={result.id}>
                 <CategorySidebar>
-                  <input
-                    onClick={() => setIsShown((current) => !current)}
+                    <input
                     style={{ margin: "2px" }}
                     type="checkbox"
                     id={result.id}
                     name={result.data.name}
                     value={result.data.name}
-                    onChange={handleChange}
+                    onClick={handleChange}
+                    onChange={handleTheChange}
+
+                    
                   />
                   <label htmlFor={result.id}>{result.data.name}</label>
                 </CategorySidebar>

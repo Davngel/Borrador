@@ -5,6 +5,7 @@ import { Header } from './components/header/Header';
 import { Home } from './pages/Home';
 import styled from 'styled-components'
 import ProductList from './components/productList/ProductList';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 
 const ButtonProducts = styled.button`
   border: none;
@@ -33,12 +34,22 @@ function App() {
 
   return (
     <div>
-      <Header 
-      titulo={'MUEBLES TRONCOSO'}
-      returnHome={returnHome}
-      />
-      {nave ? (<Home/>) : (<ProductList/>)}
+
+          <Header 
+          titulo={'MUEBLES TRONCOSO'}
+          returnHome={returnHome}
+          />
+
+      <Routes>    
+        <Route path='/' element={<Navigate to='/home'/>}/>
+        <Route path='/home' element={<Home/>}/>
+        <Route path='/products'element={<ProductList/>}/>
+      </Routes>
+
+      
+      <Link to={`${nave ? '/products': '/home'}`}>
       <ButtonProducts onClick={changePath}>{nave ? `View all products`: `Main`}</ButtonProducts>
+      </Link>
       <Footer/>
     </div>
     

@@ -1,4 +1,5 @@
 import React from "react";
+import {Link} from 'react-router-dom'
 import { ReactComponent as CarritoCompra } from "../../utils/img/shopping-cart_icon-icons.com_65051.svg";
 import { ReactComponent as LogoT } from "../../utils/img/letters_T.svg";
 import { ReactComponent as LogoM } from "../../utils/img/letters_M.svg";
@@ -113,10 +114,12 @@ export const Header = ({ titulo, returnHome }) => {
       <ContenedorHeader>
         <Title>
           {titulo}
-          <LogoImagen onClick={returnHome}>
-            <LogoM />
-            <LogoT />
-          </LogoImagen>
+          <Link to='/home'>
+            <LogoImagen onClick={returnHome}>
+              <LogoM />
+              <LogoT />
+            </LogoImagen>
+          </Link>
         </Title>
         <Buscar />
         <Carrito>

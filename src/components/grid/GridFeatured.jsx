@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import dataGrid from "../../mocks/en-us/featured-products.json";
 import styled from "styled-components";
+import { useFeaturedGrid } from "../../utils/hooks/useFeaturedGrid";
 
 const ContenedorGrid = styled.div`
   width: 100%;
@@ -104,10 +105,20 @@ const GridFeatured = () => {
     setVisible((prevValue) => prevValue + 4);
   };
 
+  const {data, isLoading} = useFeaturedGrid()
+  console.log(isLoading)
+  console.log(data)
+
   return (
     <>
-      <ContenedorGrid>
-        {dataGrid.results.slice(0, visible).map((result) => (
+{isLoading ? (<div></div>)
+
+:
+
+
+
+(      <ContenedorGrid>
+        {data.results.slice(0, visible).map((result) => (
           <Card key={result.id}>
             <Name>
               <CajaName>{result.data.name}</CajaName>
@@ -117,7 +128,7 @@ const GridFeatured = () => {
             <TextoParrafo>$ {result.data.price}</TextoParrafo>
           </Card>
         ))}
-      </ContenedorGrid>
+      </ContenedorGrid>)}
       <ButtonHere onClick={showMoreItems}>More</ButtonHere>
     </>
   );
