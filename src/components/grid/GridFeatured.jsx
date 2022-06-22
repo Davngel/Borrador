@@ -106,8 +106,6 @@ const GridFeatured = () => {
   };
 
   const {data, isLoading} = useFeaturedGrid()
-  console.log(isLoading)
-  console.log(data)
 
   return (
     <>

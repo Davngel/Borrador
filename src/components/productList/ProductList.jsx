@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 import styled from "styled-components";
-import dataCategories from "../../mocks/en-us/product-categories.json";
-import dataProducts from "../../mocks/en-us/products.json";
 import { useFeaturedCategories } from "../../utils/hooks/useFeaturedCategories";
+import { useProductList } from "../../utils/hooks/useProductList";
+import CategoryCheckbox from "./CategoryCheckbox";
 
 const ContenedorProductList = styled.div`
   display: grid;
@@ -46,11 +46,10 @@ const CategorySidebar = styled.div`
   }
 `;
 
-
 const Loader = styled.div`
-    border: 16px solid #f3f3f3;
-    margin-left: auto;
-    margin-right: auto;
+  border: 16px solid #f3f3f3;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 50%;
   border-top: 16px solid #3498db;
   width: 120px;
@@ -58,42 +57,56 @@ const Loader = styled.div`
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
 
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
 
-
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 `;
 
 const ProductList = () => {
   const [category, setCategory] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState([]);
-  const [cargando, setCargando ] = useState(true);
-
+  const [cargando, setCargando] = useState(true);
+  const { data: dataProductList, isLoading: isLoadingProduct } =
+    useProductList();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const categorias = searchParams.get("category");
-  let categoriaActiva = categorias
-  const {data, isLoading} = useFeaturedCategories()
+  let categoriaActiva = categorias;
+  const { data, isLoading } = useFeaturedCategories();
+  const [categories, setCategories] = useState([]);
 
 
   useEffect(() => {
+    if (data.results)
+      setCategories(
+        Object.values(data.results).map(({ checked, ...rest }) => ({
+          checked: false,
+          ...rest,
+        }))
+      );
+  }, [data]);
+
+  useEffect(() => {
     if (categoriaActiva === null) {
-      categoriaActiva = ''
-    } else if (categoriaActiva.length > 0 ){
+      categoriaActiva = "";
+    } else if (categoriaActiva.length > 0) {
       setCategory([...category, categoriaActiva.toLowerCase()]);
-      
     }
   }, [categoriaActiva]);
-
-
 
   const handleChange = (e) => {
     if (e.target.checked) {
@@ -104,87 +117,129 @@ const ProductList = () => {
       );
     }
   };
-  useEffect(() =>{
-    setTimeout(() => {
-      setCargando(false)
-      
-    }, 2000);
-    setCargando(true)
-
-  }, [])
-
 
   useEffect(() => {
-    if (category.length === 0) {
-      setFilteredCategory(dataProducts.results);
-    } else {
-      setFilteredCategory(
-        dataProducts.results.filter((product) =>
-          category.some((value) => [product.data.category.slug].includes(value))
-        )
-      );
-    }
-  }, [category]);
+    setTimeout(() => {
+      setCargando(false);
+    }, 2000);
+    if(isLoadingProduct === false)
+    {setCargando(true);}
+  }, []);
 
+  useEffect(() => {
+    if(dataProductList.results)
+{      if (category.length === 0) {
+        setFilteredCategory(dataProductList.results);
+      } else {
+        setFilteredCategory(
+          dataProductList.results.filter((product) =>
+            category.some((value) =>
+              [product.data.category.slug].includes(value)
+            )
+          )
+        );
+      }}
+
+      
+
+  }, [category, dataProductList]);
 
   const handleTheChange = (e) => {
-    const { name, checked } = e.target;
-    console.log(checked)
-    console.log(name)}
+    let updatedList = categories.map((item) => {
+      if (item.id == e.target.id) {
+        return { ...item, checked: !item.checked }; //gets everything that was already in item, and updates "done"
+      }
+      return item; // else return unmodified item
+    });
+
+    setCategories(updatedList); // set state to new object with updated list
+  };
 
   const Spinner = () => {
-    return (
- <Loader></Loader>
-    )
+    return <Loader></Loader>;
+  };
+
+
+
+
+
+
+  const [pageNumber, setPageNumber]= useState(1)
+  const [tope, setTope] = useState(12)
+  const postNumber = 12
+
+  let currentPageNumber =  (pageNumber * postNumber) - postNumber 
+
+  
+
+
+  const handlePrev =()=>{
+      if(pageNumber == 1) return
+      setPageNumber(pageNumber - 1)
+      setTope(tope-12)
+  }
+  const handleNext =()=>{
+      setPageNumber(pageNumber + 1)
+      setTope(tope+12)
   }
 
   return (
     <>
-{cargando ? (<Spinner/>) : 
-
-(<ContenedorProductList>
- 
-        <SidebarContenedor>
-          <TituloSidebar>Categories</TituloSidebar>
-          <Lista>
-            {data.results.map((result) => (
-              <li key={result.id}>
-                <CategorySidebar>
-                    <input
-                    style={{ margin: "2px" }}
-                    type="checkbox"
-                    id={result.id}
-                    name={result.data.name}
-                    value={result.data.name}
-                    onClick={handleChange}
-                    onChange={handleTheChange}
-
-                    
-                  />
-                  <label htmlFor={result.id}>{result.data.name}</label>
-                </CategorySidebar>
-              </li>
+      {cargando ? (
+        <Spinner />
+      ) : (
+        <ContenedorProductList>
+          <SidebarContenedor>
+            <TituloSidebar>Categories</TituloSidebar>
+            <Link to="/products">
+              <button
+                onClick={() => {
+                  setCategories(
+                    categories.map(({ checked, ...rest }) => ({
+                      checked: false,
+                      ...rest,
+                    }))
+                  );
+                  setCategory([]);
+                }}
+              >
+                Clear filter
+              </button>
+            </Link>
+            <Lista>
+              {categories.map((result) => (
+                <li key={result.id}>
+                  <CategorySidebar>
+                    <CategoryCheckbox
+                      handleChange={handleChange}
+                      handleTheChange={handleTheChange}
+                      result={result}
+                      isSelected={result.checked}
+                    />
+                  </CategorySidebar>
+                </li>
+              ))}
+            </Lista>
+          </SidebarContenedor>
+          <ProductContenedor>
+            {filteredCategory.slice(currentPageNumber, tope).map((result) => (
+              <Producto key={result.id}>
+                <ProductName>{result.data.name}</ProductName>
+                <ProductImage src={result.data.mainimage.url} alt={result.id} />
+                <PrizeCategory>{result.data.category.slug}</PrizeCategory>
+                <PrizeCategory>$ {result.data.price}</PrizeCategory>
+                <button> Add to car</button>
+                <Link to={`/product/${result.id}`}><button>More info</button></Link>
+              </Producto>
             ))}
-          </Lista>
-        </SidebarContenedor>
-        <ProductContenedor>
-          {filteredCategory.map((result) => (
-            <Producto key={result.id}>
-              <ProductName>{result.data.name}</ProductName>
-              <ProductImage src={result.data.mainimage.url} alt={result.id} />
-              <PrizeCategory>{result.data.category.slug}</PrizeCategory>
-              <PrizeCategory>$ {result.data.price}</PrizeCategory>
-            </Producto>
-          ))}
-        </ProductContenedor>
-  
-        <ContenedorButton>
-            <button>Back</button>
-            <button>Next</button>
+          </ProductContenedor>
+          <div>Page {pageNumber} </div>
+          <ContenedorButton>
+          <button onClick={handlePrev} >prev</button>
+          <button onClick={handleNext}>next</button>
           </ContenedorButton>
-  
-  </ContenedorProductList>)
-      }
+        </ContenedorProductList>
+      )}
     </>
   );
 };
@@ -200,11 +255,11 @@ const ContenedorButton = styled.div`
   color: black;
   font-size: 12px;
   border-radius: 8px;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   :hover {
-    box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
-}
-
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+      0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
 `;
 
 const ProductContenedor = styled.div`
