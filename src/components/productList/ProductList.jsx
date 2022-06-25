@@ -233,7 +233,6 @@ const ProductList = () => {
               </Producto>
             ))}
           </ProductContenedor>
-          <div>Page {pageNumber} </div>
           <ContenedorButton>
           <button onClick={handlePrev} >prev</button>
           <button onClick={handleNext}>next</button>

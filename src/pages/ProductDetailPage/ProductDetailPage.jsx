@@ -12,7 +12,6 @@ import { useLatestAPI } from '../../utils/hooks/useLatestAPI'
 const ProductDetailPage = () => {
 
     const {productId} = useParams()
-    console.log(productId)
 
 
 const useProduct = () => {
@@ -61,8 +60,6 @@ const useProduct = () => {
 
 const {data, isLoading} = useProduct()
 
-console.log(data)
-console.log(isLoading)
   return (
     <>
 
@@ -72,8 +69,6 @@ console.log(isLoading)
     ):
 (    <ProductCard
     data={data}
-    isLoading={isLoading}
-    
     />)
 }
 

@@ -105,7 +105,7 @@ const LogoImagen = styled.button`
     }
   }
 `;
-export const Header = ({ titulo, returnHome }) => {
+export const Header = ({ titulo, returnHome,setSearchTerm }) => {
 
   return (
 
@@ -121,7 +121,7 @@ export const Header = ({ titulo, returnHome }) => {
             </LogoImagen>
           </Link>
         </Title>
-        <Buscar />
+        <Buscar/>
         <Carrito>
           <CarritoCompra />
         </Carrito>

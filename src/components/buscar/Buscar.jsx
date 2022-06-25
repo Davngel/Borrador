@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import {useForm} from '../../utils/hooks/useForm.js'
+import {Link, useNavigate, useLocation} from 'react-router-dom'
 
 const Formulario = styled.form`
   margin: 3px;
@@ -18,11 +20,31 @@ const Formulario = styled.form`
   }
 `;
 const Buscar = () => {
-  return (
-    <Formulario>
-      <input type="text" />
 
-      <button type="submit" onClick={(e)=>e.preventDefault()}> Buscar </button>
+  const navigate = useNavigate()
+
+  const {searchTerm, onInputChange} = useForm({
+    searchTerm: ''
+  })
+
+  const onSearchSubmit = (e) => {
+    e.preventDefault()
+
+    if( searchTerm.trim().length <=1 ) return;
+    navigate(`/search?q=${searchTerm}`)
+
+  }
+
+  return (
+    <Formulario onSubmit= {onSearchSubmit}>
+      <input type="text" 
+      placeholder ='Write Product'
+      name='searchTerm'
+      value={searchTerm}
+      onChange={onInputChange}
+      />
+
+     <button> Search </button>
     </Formulario>
   );
 };
