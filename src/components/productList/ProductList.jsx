@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useSearchParams, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import styled from "styled-components";
 import { useFeaturedCategories } from "../../utils/hooks/useFeaturedCategories";
 import { useProductList } from "../../utils/hooks/useProductList";
 import CategoryCheckbox from "./CategoryCheckbox";
+import Spinner from "../spinner/Spinner";
 
 const ContenedorProductList = styled.div`
   display: grid;
@@ -14,7 +15,11 @@ const ContenedorProductList = styled.div`
     grid-template-columns: 15% 85%;
   }
 `;
-
+const CajaName = styled.div`
+  border: 1px solid black;
+  display: flex;
+  background-color: #bcb8b1;
+`;
 const Lista = styled.ul`
   list-style-type: none;
 `;
@@ -22,7 +27,7 @@ const Lista = styled.ul`
 const TituloSidebar = styled.h1`
   color: black;
   text-align: center;
-  font-size: medium;
+  font-size: small;
   padding-top: 10px;
   padding-bottom: 10px;
   @media (min-width: 768px) {
@@ -40,46 +45,15 @@ const CategorySidebar = styled.div`
   margin: 3px;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
   @media (min-width: 768px) {
     font-size: 18px;
-  }
-`;
-
-const Loader = styled.div`
-  border: 16px solid #f3f3f3;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  width: 120px;
-  height: 120px;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-
-  @-webkit-keyframes spin {
-    0% {
-      -webkit-transform: rotate(0deg);
-    }
-    100% {
-      -webkit-transform: rotate(360deg);
-    }
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
   }
 `;
 
 const ProductList = () => {
   const [category, setCategory] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState([]);
-  const [cargando, setCargando] = useState(true);
   const { data: dataProductList, isLoading: isLoadingProduct } =
     useProductList();
   const { search } = useLocation();
@@ -88,7 +62,6 @@ const ProductList = () => {
   let categoriaActiva = categorias;
   const { data, isLoading } = useFeaturedCategories();
   const [categories, setCategories] = useState([]);
-
 
   useEffect(() => {
     if (data.results)
@@ -119,16 +92,8 @@ const ProductList = () => {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      setCargando(false);
-    }, 2000);
-    if(isLoadingProduct === false)
-    {setCargando(true);}
-  }, []);
-
-  useEffect(() => {
-    if(dataProductList.results)
-{      if (category.length === 0) {
+    if (dataProductList.results) {
+      if (category.length === 0) {
         setFilteredCategory(dataProductList.results);
       } else {
         setFilteredCategory(
@@ -138,10 +103,8 @@ const ProductList = () => {
             )
           )
         );
-      }}
-
-      
-
+      }
+    }
   }, [category, dataProductList]);
 
   const handleTheChange = (e) => {
@@ -155,37 +118,25 @@ const ProductList = () => {
     setCategories(updatedList); // set state to new object with updated list
   };
 
-  const Spinner = () => {
-    return <Loader></Loader>;
+  const [pageNumber, setPageNumber] = useState(1);
+  const [tope, setTope] = useState(12);
+  const postNumber = 12;
+
+  let currentPageNumber = pageNumber * postNumber - postNumber;
+
+  const handlePrev = () => {
+    if (pageNumber == 1) return;
+    setPageNumber(pageNumber - 1);
+    setTope(tope - 12);
   };
-
-
-
-
-
-
-  const [pageNumber, setPageNumber]= useState(1)
-  const [tope, setTope] = useState(12)
-  const postNumber = 12
-
-  let currentPageNumber =  (pageNumber * postNumber) - postNumber 
-
-  
-
-
-  const handlePrev =()=>{
-      if(pageNumber == 1) return
-      setPageNumber(pageNumber - 1)
-      setTope(tope-12)
-  }
-  const handleNext =()=>{
-      setPageNumber(pageNumber + 1)
-      setTope(tope+12)
-  }
+  const handleNext = () => {
+    setPageNumber(pageNumber + 1);
+    setTope(tope + 12);
+  };
 
   return (
     <>
-      {cargando ? (
+      {isLoading ? (
         <Spinner />
       ) : (
         <ContenedorProductList>
@@ -224,18 +175,25 @@ const ProductList = () => {
           <ProductContenedor>
             {filteredCategory.slice(currentPageNumber, tope).map((result) => (
               <Producto key={result.id}>
-                <ProductName>{result.data.name}</ProductName>
+                <CajaName>
+                  <ProductName>{result.data.name}</ProductName>
+                </CajaName>
+                <ContenedorButtonCar>
+                  <button> Add to car</button>
+                  <Link to={`/product/${result.id}`}>
+                    <button>More info</button>
+                  </Link>
+                </ContenedorButtonCar>
                 <ProductImage src={result.data.mainimage.url} alt={result.id} />
+
                 <PrizeCategory>{result.data.category.slug}</PrizeCategory>
                 <PrizeCategory>$ {result.data.price}</PrizeCategory>
-                <button> Add to car</button>
-                <Link to={`/product/${result.id}`}><button>More info</button></Link>
               </Producto>
             ))}
           </ProductContenedor>
           <ContenedorButton>
-          <button onClick={handlePrev} >prev</button>
-          <button onClick={handleNext}>next</button>
+            <button onClick={handlePrev}>prev</button>
+            <button onClick={handleNext}>next</button>
           </ContenedorButton>
         </ContenedorProductList>
       )}
@@ -245,14 +203,14 @@ const ProductList = () => {
 
 const ContenedorButton = styled.div`
   display: grid;
-  grid-column: 2/3;
   padding: 10px;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   background-color: #e7e7e7;
   color: black;
   font-size: 12px;
+  gap: 5px;
   border-radius: 8px;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   :hover {
@@ -263,7 +221,8 @@ const ContenedorButton = styled.div`
 
 const ProductContenedor = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  justify-content: start;
 
   @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
@@ -276,36 +235,49 @@ const ProductContenedor = styled.div`
 
 const Producto = styled.div`
   border: 0.5px solid black;
-`;
-const ProductName = styled.p`
-  background-color: #bcb8b1;
-  font-size: 10px;
-  font-weight: 500;
-  text-align: center;
-
+  width: 80%;
   @media (min-width: 768px) {
-    font-size: 13px;
+    width: 205px;
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1024px) {
+    width: auto;
+  }
+`;
+const ProductName = styled.span`
+  margin: auto;
+  font-size: 15px;
+  text-align: center;
+
+  width: 100%;
+  padding: 2px 5px;
+
+  /* Both of the following are required for text-overflow */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  @media (min-width: 768px) {
     font-size: 20px;
+    padding: 5px;
+  }
+  @media (min-width: 1024px) {
+    font-size: 25px;
   }
 `;
 
 const ProductImage = styled.img`
   padding: 5px;
   margin: auto;
-  height: fit-content;
+  height: 150px;
   border-radius: 20%;
-  width: 100%;
+  width: 150px;
   display: block;
   justify-content: center;
   align-items: center;
 
   @media (min-width: 1024px) {
-    width: 200px;
-    height: 200px;
-    margin-left: 10%;
+    width: 180px;
+    height: 150px;
     padding: 0;
   }
 
@@ -326,4 +298,17 @@ const PrizeCategory = styled.p`
     font-size: 18px;
   }
 `;
+
+const ContenedorButtonCar = styled.div`
+  display: grid;
+  padding: 5px;
+  grid-template-columns: 1fr 1fr;
+  width: fit-content;
+  gap: 5px;
+  align-items: center;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+`;
+
 export default ProductList;

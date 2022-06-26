@@ -1,10 +1,10 @@
 import React from "react";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 import { ReactComponent as CarritoCompra } from "../../utils/img/shopping-cart_icon-icons.com_65051.svg";
 import { ReactComponent as LogoT } from "../../utils/img/letters_T.svg";
 import { ReactComponent as LogoM } from "../../utils/img/letters_M.svg";
-import Buscar from "../buscar/Buscar";
 import styled from "styled-components";
+import Search from "../search/Search";
 
 const ContenedorHeader = styled.header`
   width: 100%;
@@ -82,7 +82,6 @@ const LogoImagen = styled.button`
   cursor: pointer;
   grid-column: 4/4;
   svg {
-    
     height: 20px;
     width: 30px;
     transform: scale(2.5, 1);
@@ -105,11 +104,8 @@ const LogoImagen = styled.button`
     }
   }
 `;
-export const Header = ({ titulo, returnHome,setSearchTerm }) => {
-
+export const Header = ({ titulo, returnHome }) => {
   return (
-
-
     <>
       <ContenedorHeader>
         <Title>
@@ -121,7 +117,7 @@ export const Header = ({ titulo, returnHome,setSearchTerm }) => {
             </LogoImagen>
           </Link>
         </Title>
-        <Buscar/>
+        <Search />
         <Carrito>
           <CarritoCompra />
         </Carrito>
