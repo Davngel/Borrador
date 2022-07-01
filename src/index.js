@@ -2,13 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from "react-router-dom";
-import "swiper/css/bundle";
+import {  BrowserRouter } from "react-router-dom";
+import { ProductsProvider } from './components/context/ProductsCar';
 
 ReactDOM.render(
+
+  <ProductsProvider>
   <BrowserRouter>
     <App />
-  </BrowserRouter>,
+  </BrowserRouter>
+    </ProductsProvider>
+,
   document.getElementById('root')
 );
 

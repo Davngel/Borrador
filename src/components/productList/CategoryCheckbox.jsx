@@ -1,3 +1,5 @@
+import PropTypes from "prop-types";
+
 const CategoryCheckbox = ({
   isSelected,
   result,
@@ -22,6 +24,13 @@ const CategoryCheckbox = ({
       <label htmlFor={result.id}>{result.data.name}</label>
     </>
   );
+};
+
+CategoryCheckbox.propTypes = {
+  isSelected: PropTypes.bool.isRequired,
+  result: PropTypes.object.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  handleTheChange: PropTypes.func.isRequired,
 };
 
 export default CategoryCheckbox;
